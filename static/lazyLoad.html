@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+   <style>
+     *{
+       padding: 0;
+       margin: 0;
+     }
+     li{
+       list-style: none;
+       
+     }
+     a{
+       color: #666;
+       text-decoration: none;
+     }
+     #ct{
+       width: 700px;
+       margin: 0 auto;
+       margin-top: 50px;
+     }
+     #ct li{
+       padding: 30px 7px;
+       border-radius: 5px;
+       box-shadow: 0 0 8px rgba(0,0,0,0.8);
+       cursor: pointer;
+       margin-top: 20px; 
+     }
+     #ct li:after{
+       content: "";
+       display: block;
+       clear: both;
+     }
+     .item .img-box{
+       width: 100px;
+       height: 100px;
+       float: left;
+       border-radius: 10px;
+       box-shadow: 0 0 8px rgba(0,0,0,0.8);
+     }
+     .img-box img{
+       width: 100%;
+       border-radius: 5px;
+     }
+     .item .abstract{
+       margin-left: 120px;
+     }
+     .item h3{
+       color: #000;
+       font-size: 25px;
+       font-weight: 300;
+       margin-bottom: 15px;
+     }
+     .item .news-centent{
+       color: #666;
+       font-size: 16px;
+       overflow: hidden;
+       text-overflow:ellipsis;
+       display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+     }
+      .sign{
+       visibility: hidden;
+       width: 1px;
+       height: 1px;
+     }
+  </style>
+</head>
+<body>
+    <div id="wrap">
+      <div id="ct">
+        <ul>
+            <li class="item">
+                <div class="img-box">
+                  <img src="http://t1.aixinxi.net/o_1c4u3pn461jve1h749d35gp1rfqa.jpg-w.jpg" data-src="" alt="">
+                </div>
+                <div class="abstract">
+                  <h3 class="news-title">特朗普突然变了 但他正暗暗磨刀中国必须小心</h3>
+                  <p class="news-centent">据人力资源和社会保障部职业能力建设司有关负责人介绍，目前我国技能劳动者超过1.65亿人，占就业人员总量的21.3%，但其中高技能人才只有4791万人，占就业人员总量的6.2%。
+      高技能人才即通常所称的“八级工”等高技术人员。当前，我国已经初步形成了一支规模日益壮大、结构日益优化、素质逐步提高的高技能人才队伍，但无论总量还是比例仍与经济高质量发展提出的要求有相当差距。</p>
+                </div>
+            </li>
+        </ul>
+         <p class="sign"></p>
+      </div>
+    </div>
+    <script>
+
+var pageIndex = 0;
+var len = 1;
+var isNodeOver = false;
+var isGetOver = false;
+getNews();
+ $(window).on("scroll",function(){
+    if(isShow($(".sign"))&&!isNodeOver&&!isGetOver){
+      getNews();
+    }
+ })
+function getNews(){
+  isGetOver = true;
+  $.ajax({
+    url:"/getNews",
+    type: "get",
+    data:{
+      pageIndex: pageIndex,
+      len: len
+  }
+  }).done(function(res){
+    mkdeNews(res);
+    pageIndex+=len;
+    isGetOver = false;
+  if(isShow($(".sign"))){
+      getNews();
+    }
+  }).fail(function(jqXHR, textStatus){
+    console.log(textStatus);
+  });
+}
+
+function mkdeNews(res){
+  var arrNews = JSON.parse(res)
+  if (arrNews.length===0) {
+    isNodeOver=true;
+     $("#ct>ul").append("<li>没有数据了</li>");
+  }else{
+  for (var i = 0; i < arrNews.length; i++) {
+    $("#ct>ul").append(mkdeNode(arrNews[i].title,arrNews[i].brif))
+    }
+  }
+}
+function mkdeNode(title,brif){
+  console.log(title+":"+brif)
+  return  '<li class="item"><div class="img-box"><img src="http://t1.aixinxi.net/o_1c4u3pn461jve1h749d35gp1rfqa.jpg-w.jpg" data-src="" alt=""></div>'
+                +'<div class="abstract">'
+                  +'<h3 class="news-title">'+title+'</h3>'
+                  +'<p class="news-centent">'+brif+'</p></div></li>'
+}
+ function isShow($node){
+      var windowHeight = $(window).height(),
+          scrollTop = $(window).scrollTop(),
+          offsetTop = $node.offset().top,
+          nodeHeight = $node.height();
+      if(windowHeight + scrollTop > offsetTop && scrollTop < offsetTop + nodeHeight){
+        return true;
+      }else{
+        return false;
+      }
+
+    }
+    </script>
+</body>
+</html>
